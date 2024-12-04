@@ -1,16 +1,12 @@
 package day03
 
 import (
-	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
-
-	"github.com/philipszalla/adventofcode-2024/utils"
 )
 
-func Part1(filename string) int {
-	lines := utils.ReadFile(filename)
+func Part1(lines []string) int {
 	str := strings.Join(lines, "")
 
 	re := regexp.MustCompile(`mul\(([0-9]{1,3}),([0-9]{1,3})\)`)
@@ -24,12 +20,10 @@ func Part1(filename string) int {
 		sum += a * b
 	}
 
-	fmt.Printf("day03.Part1 %d\n", sum)
 	return sum
 }
 
-func Part2(filename string) int {
-	lines := utils.ReadFile(filename)
+func Part2(lines []string) int {
 	str := strings.Join(lines, "")
 
 	for {
@@ -57,6 +51,5 @@ func Part2(filename string) int {
 		sum += a * b
 	}
 
-	fmt.Printf("day03.Part2 %d\n", sum)
 	return sum
 }

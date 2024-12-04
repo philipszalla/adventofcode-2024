@@ -1,17 +1,12 @@
 package day01
 
 import (
-	"fmt"
 	"slices"
 	"strconv"
 	"strings"
-
-	"github.com/philipszalla/adventofcode-2024/utils"
 )
 
-func Part1(filename string) int {
-	lines := utils.ReadFile(filename)
-
+func Part1(lines []string) int {
 	list_a := make([]int, len(lines))
 	list_b := make([]int, len(lines))
 	for index, line := range lines {
@@ -28,14 +23,10 @@ func Part1(filename string) int {
 		sum += max(list_a[i], list_b[i]) - min(list_a[i], list_b[i])
 	}
 
-	fmt.Printf("sum: %d\n", sum)
-
 	return sum
 }
 
-func Part2(filename string) int {
-	lines := utils.ReadFile(filename)
-
+func Part2(lines []string) int {
 	list_a := make([]int, len(lines))
 	map_b := make(map[int]int)
 	for index, line := range lines {
@@ -58,8 +49,6 @@ func Part2(filename string) int {
 			sum += a * count
 		}
 	}
-
-	fmt.Printf("sum: %d\n", sum)
 
 	return sum
 }

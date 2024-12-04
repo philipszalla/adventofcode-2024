@@ -1,11 +1,8 @@
 package day02
 
 import (
-	"fmt"
 	"strconv"
 	"strings"
-
-	"github.com/philipszalla/adventofcode-2024/utils"
 )
 
 func reportIsSafe(levels []int) bool {
@@ -38,9 +35,7 @@ func reportIsSafe(levels []int) bool {
 	return is_safe
 }
 
-func Part1(filename string) int {
-	lines := utils.ReadFile(filename)
-
+func Part1(lines []string) int {
 	reports := make(chan int, len(lines))
 
 	for _, line := range lines {
@@ -64,13 +59,10 @@ func Part1(filename string) int {
 		sum += <-reports
 	}
 
-	fmt.Printf("day02.Part1 %d\n", sum)
 	return sum
 }
 
-func Part2(filename string) int {
-	lines := utils.ReadFile(filename)
-
+func Part2(lines []string) int {
 	reports := make(chan int, len(lines))
 
 	for _, line := range lines {
@@ -109,6 +101,5 @@ func Part2(filename string) int {
 		sum += <-reports
 	}
 
-	fmt.Printf("day02.Part2 %d\n", sum)
 	return sum
 }
