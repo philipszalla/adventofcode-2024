@@ -54,5 +54,34 @@ func Part1(lines []string) int {
 
 func Part2(lines []string) int {
 	sum := 0
+
+	height := len(lines)
+	width := len(lines[0])
+
+	// loop over all characters
+	for i := 0; i < height*width; i++ {
+		y := i / height
+		x := i % width
+
+		if x < 1 || x > width-2 || y < 1 || y > height-2 {
+			continue
+		}
+
+		if string(lines[y][x]) != "A" {
+			continue
+		}
+
+		charTL := string(lines[y-1][x-1])
+		charBR := string(lines[y+1][x+1])
+		charTR := string(lines[y-1][x+1])
+		charBL := string(lines[y+1][x-1])
+
+		if ((charTL == "M" && charBR == "S") || (charTL == "S" && charBR == "M")) &&
+			((charTR == "M" && charBL == "S") || (charTR == "S" && charBL == "M")) {
+			sum += 1
+			// fmt.Printf("Found str at (%d,%d)\n", x, y)
+		}
+	}
+
 	return sum
 }
