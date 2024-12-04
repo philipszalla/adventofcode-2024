@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/philipszalla/adventofcode-2024/day01"
 	"github.com/philipszalla/adventofcode-2024/day02"
+	"github.com/philipszalla/adventofcode-2024/day03"
 )
 
 func main() {
@@ -11,4 +12,7 @@ func main() {
 
 	day02.Part1("day02/puzzle.txt")
 	day02.Part2("day02/puzzle.txt")
+
+	day03.Part1("day03/puzzle.txt")
+	day03.Part2("day03/puzzle.txt")
 }
