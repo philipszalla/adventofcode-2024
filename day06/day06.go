@@ -5,8 +5,8 @@ import (
 )
 
 type Pos struct {
-	x int
-	y int
+	x int16
+	y int16
 }
 type Pos2 struct {
 	x   int16
@@ -18,21 +18,24 @@ func findStart(lines []string) Pos {
 	for y, line := range lines {
 		x := strings.Index(line, "^")
 		if x != -1 {
-			return Pos{x, y}
+			return Pos{int16(x), int16(y)}
 		}
 	}
 
 	return Pos{-1, -1}
 }
 
-func findWatchedFields(lines []string, height, width int) map[Pos]bool {
-	watchedFields := make(map[Pos]bool, height*width)
+func findWatchedFields(lines []string, height, width int16) [][]bool {
+	watchedFields := make([][]bool, height)
+	for i := int16(0); i < height; i++ {
+		watchedFields[i] = make([]bool, width)
+	}
 
 	current := findStart(lines)
 	dir := 0
 
 	for {
-		watchedFields[current] = true
+		watchedFields[current.y][current.x] = true
 		// fmt.Printf("Pos: %o\n", current)
 
 		// get next potential position
@@ -67,12 +70,21 @@ func findWatchedFields(lines []string, height, width int) map[Pos]bool {
 }
 
 func Part1(lines []string) int {
-	height := len(lines)
-	width := len(lines[0])
+	height := int16(len(lines))
+	width := int16(len(lines[0]))
 
 	watchedFields := findWatchedFields(lines, height, width)
 
-	return len(watchedFields)
+	sum := 0
+	for _, row := range watchedFields {
+		for _, cell := range row {
+			if cell {
+				sum++
+			}
+		}
+	}
+
+	return sum
 }
 
 func findStart2(lines []string) Pos2 {
@@ -146,26 +158,32 @@ func Part2(lines []string) int {
 	count := 0
 	res := make(chan int)
 
-	watchedFields := findWatchedFields(lines, int(height), int(width))
-	delete(watchedFields, Pos{int(start.x), int(start.y)})
+	watchedFields := findWatchedFields(lines, height, width)
+	watchedFields[start.y][start.x] = false
 
-	for field := range watchedFields {
-		count++
-		go func(lines []string, height int16, width int16, start Pos2, x, y int) {
-			newLines := make([]string, len(lines))
-			copy(newLines, lines)
-			for newY := range newLines {
-				if y == newY {
-					line := []rune(newLines[y])
-					line[x] = 'O'
-					newLines[y] = string(line)
-				} else {
-					newLines[newY] = string(newLines[newY])
-				}
+	for y, row := range watchedFields {
+		for x, cell := range row {
+			if !cell {
+				continue
 			}
 
-			res <- try(newLines, height, width, start)
-		}(lines, height, width, start, field.x, field.y)
+			count++
+			go func(lines []string, height int16, width int16, start Pos2, x, y int) {
+				newLines := make([]string, len(lines))
+				copy(newLines, lines)
+				for newY := range newLines {
+					if y == newY {
+						line := []rune(newLines[y])
+						line[x] = 'O'
+						newLines[y] = string(line)
+					} else {
+						newLines[newY] = string(newLines[newY])
+					}
+				}
+
+				res <- try(newLines, height, width, start)
+			}(lines, height, width, start, x, y)
+		}
 	}
 
 	sum := 0
