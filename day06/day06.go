@@ -104,15 +104,18 @@ func getNextPos(current Pos2, dir uint8) Pos2 {
 func try(lines []string, height int16, width int16, start Pos2) int {
 	current := start
 
-	watchedFields := make(map[Pos2]bool, height*width*4)
+	watchedFields := make([][]uint8, height)
+	for i := 0; i < int(height); i++ {
+		watchedFields[i] = make([]uint8, width)
+	}
 
 	for {
-		_, exists := watchedFields[current]
-		if exists {
+		savedDir := watchedFields[current.y][current.x]
+		if savedDir&(1<<current.dir) == (1 << current.dir) {
 			return 1
+		} else {
+			watchedFields[current.y][current.x] |= 1 << current.dir
 		}
-
-		watchedFields[current] = true
 		// fmt.Printf("Pos: %o\n", current)
 
 		// get next potential position
