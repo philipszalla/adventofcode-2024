@@ -9,9 +9,9 @@ type Pos struct {
 	y int
 }
 type Pos2 struct {
-	x   int
-	y   int
-	dir int
+	x   int16
+	y   int16
+	dir uint8
 }
 
 func findStart(lines []string) Pos {
@@ -25,11 +25,8 @@ func findStart(lines []string) Pos {
 	return Pos{-1, -1}
 }
 
-func Part1(lines []string) int {
-	height := len(lines)
-	width := len(lines[0])
-
-	watchedFields := make(map[Pos]bool)
+func findWatchedFields(lines []string, height, width int) map[Pos]bool {
+	watchedFields := make(map[Pos]bool, height*width)
 
 	current := findStart(lines)
 	dir := 0
@@ -66,6 +63,15 @@ func Part1(lines []string) int {
 		current = nextPos
 	}
 
+	return watchedFields
+}
+
+func Part1(lines []string) int {
+	height := len(lines)
+	width := len(lines[0])
+
+	watchedFields := findWatchedFields(lines, height, width)
+
 	return len(watchedFields)
 }
 
@@ -73,14 +79,14 @@ func findStart2(lines []string) Pos2 {
 	for y, line := range lines {
 		x := strings.Index(line, "^")
 		if x != -1 {
-			return Pos2{x, y, 0}
+			return Pos2{int16(x), int16(y), 0}
 		}
 	}
 
-	return Pos2{-1, -1, -1}
+	return Pos2{-1, -1, 0}
 }
 
-func getNextPos(current Pos2, dir int) Pos2 {
+func getNextPos(current Pos2, dir uint8) Pos2 {
 	switch dir {
 	case 0:
 		return Pos2{current.x, current.y - 1, dir}
@@ -92,13 +98,13 @@ func getNextPos(current Pos2, dir int) Pos2 {
 		return Pos2{current.x - 1, current.y, dir}
 	}
 
-	return Pos2{-1, -1, -1}
+	return Pos2{-1, -1, 0}
 }
 
-func try(lines []string, height int, width int, start Pos2) int {
+func try(lines []string, height int16, width int16, start Pos2) int {
 	current := start
 
-	watchedFields := make(map[Pos2]bool)
+	watchedFields := make(map[Pos2]bool, height*width*4)
 
 	for {
 		_, exists := watchedFields[current]
@@ -130,24 +136,19 @@ func try(lines []string, height int, width int, start Pos2) int {
 }
 
 func Part2(lines []string) int {
-	height := len(lines)
-	width := len(lines[0])
+	height := int16(len(lines))
+	width := int16(len(lines[0]))
 	start := findStart2(lines)
 
 	count := 0
 	res := make(chan int)
 
-	for i := 0; i < width*height; i++ {
-		x := i % width
-		y := i / height
+	watchedFields := findWatchedFields(lines, int(height), int(width))
+	delete(watchedFields, Pos{int(start.x), int(start.y)})
 
-		char := rune(lines[y][x])
-		if char == '#' || char == '^' {
-			continue
-		}
-
+	for field := range watchedFields {
 		count++
-		go func(lines []string, height int, width int, start Pos2, x, y int) {
+		go func(lines []string, height int16, width int16, start Pos2, x, y int) {
 			newLines := make([]string, len(lines))
 			copy(newLines, lines)
 			for newY := range newLines {
@@ -161,7 +162,7 @@ func Part2(lines []string) int {
 			}
 
 			res <- try(newLines, height, width, start)
-		}(lines, height, width, start, x, y)
+		}(lines, height, width, start, field.x, field.y)
 	}
 
 	sum := 0
