@@ -8,11 +8,6 @@ type Pos struct {
 	x int16
 	y int16
 }
-type Pos2 struct {
-	x   int16
-	y   int16
-	dir uint8
-}
 
 func findStart(lines []string) Pos {
 	for y, line := range lines {
@@ -25,31 +20,21 @@ func findStart(lines []string) Pos {
 	return Pos{-1, -1}
 }
 
-func findWatchedFields(lines []string, height, width int16) [][]bool {
+func findWatchedFields(lines []string, height, width int16, start Pos) [][]bool {
 	watchedFields := make([][]bool, height)
 	for i := int16(0); i < height; i++ {
 		watchedFields[i] = make([]bool, width)
 	}
 
-	current := findStart(lines)
-	dir := 0
+	current := start
+	dir := uint8(0)
 
 	for {
 		watchedFields[current.y][current.x] = true
 		// fmt.Printf("Pos: %o\n", current)
 
 		// get next potential position
-		nextPos := current
-		switch dir {
-		case 0:
-			nextPos = Pos{current.x, current.y - 1}
-		case 1:
-			nextPos = Pos{current.x + 1, current.y}
-		case 2:
-			nextPos = Pos{current.x, current.y + 1}
-		case 3:
-			nextPos = Pos{current.x - 1, current.y}
-		}
+		nextPos := getNextPos(current, dir)
 
 		// is next potential position in grid?
 		if nextPos.x < 0 || nextPos.x >= width || nextPos.y < 0 || nextPos.y >= height {
@@ -60,10 +45,9 @@ func findWatchedFields(lines []string, height, width int16) [][]bool {
 		if rune(lines[nextPos.y][nextPos.x]) == '#' {
 			// turn right
 			dir = (dir + 1) % 4
-			nextPos = current
+		} else {
+			current = nextPos
 		}
-
-		current = nextPos
 	}
 
 	return watchedFields
@@ -72,8 +56,9 @@ func findWatchedFields(lines []string, height, width int16) [][]bool {
 func Part1(lines []string) int {
 	height := int16(len(lines))
 	width := int16(len(lines[0]))
+	start := findStart(lines)
 
-	watchedFields := findWatchedFields(lines, height, width)
+	watchedFields := findWatchedFields(lines, height, width, start)
 
 	sum := 0
 	for _, row := range watchedFields {
@@ -87,34 +72,16 @@ func Part1(lines []string) int {
 	return sum
 }
 
-func findStart2(lines []string) Pos2 {
-	for y, line := range lines {
-		x := strings.Index(line, "^")
-		if x != -1 {
-			return Pos2{int16(x), int16(y), 0}
-		}
-	}
+var diffX = [...]int16{0, 1, 0, -1}
+var diffY = [...]int16{-1, 0, +1, 0}
 
-	return Pos2{-1, -1, 0}
+func getNextPos(current Pos, dir uint8) Pos {
+	return Pos{current.x + diffX[dir], current.y + diffY[dir]}
 }
 
-func getNextPos(current Pos2, dir uint8) Pos2 {
-	switch dir {
-	case 0:
-		return Pos2{current.x, current.y - 1, dir}
-	case 1:
-		return Pos2{current.x + 1, current.y, dir}
-	case 2:
-		return Pos2{current.x, current.y + 1, dir}
-	case 3:
-		return Pos2{current.x - 1, current.y, dir}
-	}
-
-	return Pos2{-1, -1, 0}
-}
-
-func try(lines []string, height int16, width int16, start Pos2) int {
+func try(lines []string, height int16, width int16, start Pos) int {
 	current := start
+	currentDir := uint8(0)
 
 	watchedFields := make([][]uint8, height)
 	for i := 0; i < int(height); i++ {
@@ -123,15 +90,15 @@ func try(lines []string, height int16, width int16, start Pos2) int {
 
 	for {
 		savedDir := watchedFields[current.y][current.x]
-		if savedDir&(1<<current.dir) == (1 << current.dir) {
+		if savedDir&(1<<currentDir) == (1 << currentDir) {
 			return 1
 		} else {
-			watchedFields[current.y][current.x] |= 1 << current.dir
+			watchedFields[current.y][current.x] |= 1 << currentDir
 		}
 		// fmt.Printf("Pos: %o\n", current)
 
 		// get next potential position
-		nextPos := getNextPos(current, current.dir)
+		nextPos := getNextPos(current, currentDir)
 
 		// is next potential position in grid?
 		if nextPos.x < 0 || nextPos.x >= width || nextPos.y < 0 || nextPos.y >= height {
@@ -142,23 +109,23 @@ func try(lines []string, height int16, width int16, start Pos2) int {
 		char := rune(lines[nextPos.y][nextPos.x])
 		if char == '#' || char == 'O' {
 			// turn right
-			dir := (current.dir + 1) % 4
-			nextPos = Pos2{current.x, current.y, dir}
+			currentDir = (currentDir + 1) % 4
+		} else {
+			current = nextPos
 		}
 
-		current = nextPos
 	}
 }
 
 func Part2(lines []string) int {
 	height := int16(len(lines))
 	width := int16(len(lines[0]))
-	start := findStart2(lines)
+	start := findStart(lines)
 
 	count := 0
 	res := make(chan int)
 
-	watchedFields := findWatchedFields(lines, height, width)
+	watchedFields := findWatchedFields(lines, height, width, start)
 	watchedFields[start.y][start.x] = false
 
 	for y, row := range watchedFields {
@@ -168,7 +135,7 @@ func Part2(lines []string) int {
 			}
 
 			count++
-			go func(lines []string, height int16, width int16, start Pos2, x, y int) {
+			go func(lines []string, height int16, width int16, start Pos, x, y int) {
 				newLines := make([]string, len(lines))
 				copy(newLines, lines)
 				for newY := range newLines {
