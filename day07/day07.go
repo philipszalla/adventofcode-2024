@@ -6,21 +6,36 @@ import (
 	"strings"
 )
 
+// func Part1(lines []string) int {
+// 	sum := 0
+
+// 	for _, line := range lines {
+// 		sum += solveLine(line, combinePart1)
+// 	}
+
+//		return sum
+//	}
 func Part1(lines []string) int {
-	sum := 0
-
-	for _, line := range lines {
-		sum += solveLine(line, combinePart1)
-	}
-
-	return sum
+	return solveLines(lines, combinePart1)
 }
 
 func Part2(lines []string) int {
-	sum := 0
+	return solveLines(lines, combinePart2)
+}
+
+func solveLines(lines []string, combineFunc func(int, int, []int) bool) int {
+	results := make(chan int, len(lines))
 
 	for _, line := range lines {
-		sum += solveLine(line, combinePart2)
+		go func(line string) {
+			results <- solveLine(line, combineFunc)
+		}(line)
+	}
+
+	sum := 0
+
+	for range lines {
+		sum += <-results
 	}
 
 	return sum
