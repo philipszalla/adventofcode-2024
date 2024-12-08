@@ -5,6 +5,60 @@ type Pos struct {
 }
 
 func Part1(lines []string) int {
+	return iteratePuzzle(lines, antinodesPart1)
+}
+
+func antinodesPart1(a, b Pos, width, height int) []Pos {
+	antinodes := make([]Pos, 0)
+
+	deltaX := b.x - a.x
+	deltaY := b.y - a.y
+
+	antinode1 := Pos{b.x + deltaX, b.y + deltaY}
+	if antinode1.x >= 0 && antinode1.x < width && antinode1.y >= 0 && antinode1.y < height {
+		antinodes = append(antinodes, antinode1)
+	}
+
+	antinode2 := Pos{a.x - deltaX, a.y - deltaY}
+	if antinode2.x >= 0 && antinode2.x < width && antinode2.y >= 0 && antinode2.y < height {
+		antinodes = append(antinodes, antinode2)
+	}
+
+	return antinodes
+}
+
+func Part2(lines []string) int {
+	return iteratePuzzle(lines, antinodesPart2)
+}
+
+func antinodesPart2(a, b Pos, width, height int) []Pos {
+	antinodes := make([]Pos, 0)
+
+	deltaX := b.x - a.x
+	deltaY := b.y - a.y
+
+	for i := 0; true; i++ {
+		antinode := Pos{b.x + deltaX*i, b.y + deltaY*i}
+		if antinode.x < 0 || antinode.x >= width || antinode.y < 0 || antinode.y >= height {
+			break
+		}
+
+		antinodes = append(antinodes, antinode)
+	}
+
+	for i := 0; true; i++ {
+		antinode := Pos{b.x - deltaX*i, b.y - deltaY*i}
+		if antinode.x < 0 || antinode.x >= width || antinode.y < 0 || antinode.y >= height {
+			break
+		}
+
+		antinodes = append(antinodes, antinode)
+	}
+
+	return antinodes
+}
+
+func iteratePuzzle(lines []string, antinodeFn func(Pos, Pos, int, int) []Pos) int {
 	width := len(lines[0])
 	height := len(lines)
 	chars := make(map[rune][]Pos)
@@ -29,19 +83,9 @@ func Part1(lines []string) int {
 		if ok {
 			// calculate antinodes
 			for _, node := range chars[char] {
-				deltaX := node.x - currentNode.x
-				deltaY := node.y - currentNode.y
-
-				antinode1X := node.x + deltaX
-				antinode1Y := node.y + deltaY
-				if antinode1X >= 0 && antinode1X < width && antinode1Y >= 0 && antinode1Y < height {
-					antinodes[antinode1Y][antinode1X] = true
-				}
-
-				antinode2X := currentNode.x - deltaX
-				antinode2Y := currentNode.y - deltaY
-				if antinode2X >= 0 && antinode2X < width && antinode2Y >= 0 && antinode2Y < height {
-					antinodes[antinode2Y][antinode2X] = true
+				newAntinodes := antinodeFn(currentNode, node, width, height)
+				for _, newAntinode := range newAntinodes {
+					antinodes[newAntinode.y][newAntinode.x] = true
 				}
 			}
 
