@@ -35,4 +35,5 @@ func main() {
 	utils.RunPartWithFile(7, 2, day07.Part2, "day07/puzzle.txt")
 
 	utils.RunPartWithFile(8, 1, day08.Part1, "day08/puzzle.txt")
+	utils.RunPartWithFile(8, 2, day08.Part2, "day08/puzzle.txt")
 }
