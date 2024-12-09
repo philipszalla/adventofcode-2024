@@ -146,3 +146,83 @@ func Part2(lines []string) int {
 
 	return sum
 }
+
+func Part2b(lines []string) int {
+	line := lines[0]
+	blocks := make([]int, 0)
+
+	// fmt.Printf("line: %s\n", line)
+	// fmt.Printf("line length: %d\n", len(line))
+
+	// parse blocks
+	for i, char := range line {
+		count := int(char - '0')
+
+		value := -1
+		if i%2 == 0 {
+			value = i / 2
+		}
+
+		// ignore last blocks, when free
+		if value == -1 && i == len(line)-1 {
+			break
+		}
+
+		for j := 0; j < count; j++ {
+			blocks = append(blocks, value)
+		}
+	}
+
+	// fmt.Printf("blocks: %v\n", blocks)
+
+	// sort blocks
+	lastFileId := -1
+	count := 0
+	for i := len(blocks) - 1; i >= 0; i-- {
+		if blocks[i] != lastFileId {
+			if lastFileId != -1 {
+				// detected all blocks of one file
+				firstFreeBlock := -1
+				for j := 0; j <= i; j++ {
+					if blocks[j] != -1 {
+						firstFreeBlock = -1
+						continue
+					}
+
+					if firstFreeBlock == -1 {
+						firstFreeBlock = j
+					}
+
+					if count > j-firstFreeBlock+1 {
+						continue
+					}
+
+					for k := 0; k < count; k++ {
+						// fmt.Printf("i: %d j: %d k: %d firstFreeBlock: %d\n", i, j, k, firstFreeBlock)
+						blocks[firstFreeBlock+k] = blocks[i+1+k]
+						blocks[i+1+k] = -1
+					}
+
+					break
+				}
+			}
+
+			lastFileId = blocks[i]
+			count = 0
+		}
+		count++
+	}
+
+	// fmt.Printf("sorted blocks: %v\n", blocks)
+
+	sum := 0
+	for i, fileIndex := range blocks {
+		if fileIndex == -1 {
+			continue
+		}
+
+		sum += i * fileIndex
+	}
+
+	return sum
+}
