@@ -72,7 +72,7 @@ func combinePart2(expectedResult, current int, nums []int) bool {
 		return expectedResult == current
 	}
 
-	concatedNums := current*int(math.Pow10(int(math.Log10(float64(nums[0])))+1)) + nums[0]
+	concatedNums := current*int(math.Pow10(len(strconv.Itoa(nums[0])))) + nums[0]
 	// fmt.Printf("concat %d and %d to %d\n", current, nums[0], concatedNums)
 
 	return combinePart2(expectedResult, current+nums[0], nums[1:]) || combinePart2(expectedResult, current*nums[0], nums[1:]) || combinePart2(expectedResult, concatedNums, nums[1:])
