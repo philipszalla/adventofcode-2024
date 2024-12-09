@@ -1,0 +1,57 @@
+name: Run adventofcode 2024
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.23.2'
+
+      - name: Build solution
+        run: go build -v
+
+      - name: Upload solution
+        uses: actions/upload-artifact@v4
+        with:
+          name: solution
+          path: adventofcode-2024
+  
+  execute:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Download solution
+        uses: actions/download-artifact@v4
+        with:
+          name: solution
+
+      - name: Run solution
+        env:
+          PUZZLE_01: ${{ secrets.PUZZLE_01 }}
+          PUZZLE_02: ${{ secrets.PUZZLE_02 }}
+          PUZZLE_03: ${{ secrets.PUZZLE_03 }}
+          PUZZLE_04: ${{ secrets.PUZZLE_04 }}
+          PUZZLE_05: ${{ secrets.PUZZLE_05 }}
+          PUZZLE_06: ${{ secrets.PUZZLE_06 }}
+          PUZZLE_07: ${{ secrets.PUZZLE_07 }}
+          PUZZLE_08: ${{ secrets.PUZZLE_08 }}
+          PUZZLE_09: ${{ secrets.PUZZLE_09 }}
+        run: |
+          chmod +x adventofcode-2024
+          ./adventofcode-2024 | tee output.txt
+
+      - name: Upload results
+        uses: actions/upload-artifact@v4
+        with:
+          name: results
+          path: output.txt
