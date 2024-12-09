@@ -11,7 +11,18 @@ import (
 type partFn func([]string) int
 
 func RunPartWithFile(day int, part int, fn partFn, filename string) {
-	lines := ReadFile(filename)
+	dayString := fmt.Sprintf("%02d", day)
+
+	var lines []string
+
+	// Try get from env
+	env := os.Getenv("PUZZLE_" + dayString)
+	if env != "" {
+		lines = strings.Split(env, "\n")
+	} else {
+		lines = ReadFile(filename)
+	}
+
 	RunPart(day, part, fn, lines)
 }
 
