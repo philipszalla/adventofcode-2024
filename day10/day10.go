@@ -13,17 +13,15 @@ func Part1(lines []string) int {
 		if rune(lines[y][x]) == '0' {
 			// fmt.Printf("Found trailhead at %d,%d\n", x, y)
 
-			foundEnds := make([][]bool, height)
-			for i := range foundEnds {
-				foundEnds[i] = make([]bool, width)
-			}
+			foundEnds := make([]uint64, height)
 
 			sum += traversePaths(lines, width, height, x, y, -1, 0, func(x, y int) bool {
-				if foundEnds[y][x] {
+				// fmt.Printf("%d,%d: %b\n", x, y, foundEnds[y])
+				if (foundEnds[y] & (uint64(1) << x)) == uint64(1)<<x {
 					return false
 				}
 
-				foundEnds[y][x] = true
+				foundEnds[y] |= uint64(1) << x
 
 				return true
 			})
