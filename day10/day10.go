@@ -18,7 +18,15 @@ func Part1(lines []string) int {
 				foundEnds[i] = make([]bool, width)
 			}
 
-			sum += traversePaths(lines, width, height, x, y, -1, 0, foundEnds, true)
+			sum += traversePaths(lines, width, height, x, y, -1, 0, func(x, y int) bool {
+				if foundEnds[y][x] {
+					return false
+				}
+
+				foundEnds[y][x] = true
+
+				return true
+			})
 		}
 	}
 
@@ -38,12 +46,9 @@ func Part2(lines []string) int {
 		if rune(lines[y][x]) == '0' {
 			// fmt.Printf("Found trailhead at %d,%d\n", x, y)
 
-			foundEnds := make([][]bool, height)
-			for i := range foundEnds {
-				foundEnds[i] = make([]bool, width)
-			}
-
-			sum += traversePaths(lines, width, height, x, y, -1, 0, foundEnds, false)
+			sum += traversePaths(lines, width, height, x, y, -1, 0, func(int, int) bool {
+				return true
+			})
 		}
 	}
 
@@ -53,7 +58,7 @@ func Part2(lines []string) int {
 var deltaX = []int{0, 1, 0, -1}
 var deltaY = []int{-1, 0, 1, 0}
 
-func traversePaths(lines []string, width, height, x, y, fromDir, counter int, foundEnds [][]bool, part1 bool) int {
+func traversePaths(lines []string, width, height, x, y, fromDir, counter int, foundFn func(int, int) bool) int {
 	if !isInGrid(width, height, x, y) {
 		return 0
 	}
@@ -63,11 +68,10 @@ func traversePaths(lines []string, width, height, x, y, fromDir, counter int, fo
 	}
 
 	if counter == 9 {
-		if part1 && foundEnds[y][x] {
+		if !foundFn(x, y) {
 			return 0
 		}
 
-		foundEnds[y][x] = true
 		// fmt.Printf("Found end at %d,%d\n", x, y)
 
 		return 1
@@ -79,7 +83,7 @@ func traversePaths(lines []string, width, height, x, y, fromDir, counter int, fo
 			continue
 		}
 
-		sum += traversePaths(lines, width, height, x+deltaX[i], y+deltaY[i], (i+2)%4, counter+1, foundEnds, part1)
+		sum += traversePaths(lines, width, height, x+deltaX[i], y+deltaY[i], (i+2)%4, counter+1, foundFn)
 	}
 
 	return sum
