@@ -1,8 +1,10 @@
 package day11
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func Part1(lines []string) int {
@@ -10,32 +12,40 @@ func Part1(lines []string) int {
 }
 
 func getStoneCount(lines []string, iterations int) int {
-	stones := strings.Split(lines[0], " ")
+	stoneStrings := strings.Split(lines[0], " ")
+	stones := make([]int, len(stoneStrings))
+	for i, str := range stoneStrings {
+		stones[i], _ = strconv.Atoi(str)
+	}
+
+	start := time.Now()
 
 	for iteration := 0; iteration < iterations; iteration++ {
-		// fmt.Printf("%v\n", stones)
+		end := time.Now()
+		elapsed := end.Sub(start)
+		fmt.Printf("Elapsed time: %s, Iteration: %d, stone count: %d\n", elapsed, iteration, len(stones))
+		start = time.Now()
 
 		for i := 0; i < len(stones); i++ {
 			stone := stones[i]
-			if stone == "0" {
-				stones[i] = "1"
+			if stone == 0 {
+				stones[i] = 1
 				continue
 			}
 
-			numberLen := len(stone)
+			str := strconv.Itoa(stone)
+			numberLen := len(str)
 			if numberLen%2 == 0 {
 				stones = append(stones[:i+1], stones[i:]...)
 
-				stones[i] = stone[:numberLen/2]
-				num2, _ := strconv.Atoi(stone[numberLen/2:])
-				stones[i+1] = strconv.Itoa(num2)
+				stones[i], _ = strconv.Atoi(str[:numberLen/2])
+				stones[i+1], _ = strconv.Atoi(str[numberLen/2:])
 				i++
 
 				continue
 			}
 
-			num, _ := strconv.Atoi(stones[i])
-			stones[i] = strconv.Itoa(num * 2024)
+			stones[i] *= 2024
 		}
 	}
 
