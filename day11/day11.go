@@ -1,6 +1,7 @@
 package day11
 
 import (
+	"fmt"
 	"math"
 	"strconv"
 	"strings"
@@ -79,14 +80,16 @@ func getStoneCount(lines []string, iterations int) int {
 	return len(stones)
 }
 
-type Tuple struct {
-	a, b int
-}
+var ITERATION_BITS = 7
 
 func getStoneCountRecursive(lines []string, iterations int) int {
+	if iterations > 1<<(ITERATION_BITS)-1 {
+		panic(fmt.Sprintf("only supports up to %d iterations", 1<<(ITERATION_BITS+1)-1))
+	}
+
 	stoneStrings := strings.Split(lines[0], " ")
 
-	cache := make(map[Tuple]int)
+	cache := make(map[int]int)
 
 	sum := 0
 	for _, str := range stoneStrings {
@@ -97,8 +100,8 @@ func getStoneCountRecursive(lines []string, iterations int) int {
 	return sum
 }
 
-func countStones(stone int, iteration int, cache map[Tuple]int) int {
-	key := Tuple{stone, iteration}
+func countStones(stone int, iteration int, cache map[int]int) int {
+	key := stone<<ITERATION_BITS | iteration
 	cached, ok := cache[key]
 	if ok {
 		return cached
