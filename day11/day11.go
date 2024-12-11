@@ -1,6 +1,7 @@
 package day11
 
 import (
+	"math"
 	"strconv"
 	"strings"
 )
@@ -111,13 +112,19 @@ func countStones(stone int, iteration int, cache map[Tuple]int) int {
 	if stone == 0 {
 		sum = countStones(1, iteration-1, cache)
 	} else {
-		str := strconv.Itoa(stone)
-		numberLen := len(str)
+		num := stone
+		numberLen := 0
+		for num > 0 {
+			num /= 10
+			numberLen++
+		}
+
 		if numberLen%2 == 1 {
 			sum = countStones(stone*2024, iteration-1, cache)
 		} else {
-			a, _ := strconv.Atoi(str[:numberLen/2])
-			b, _ := strconv.Atoi(str[numberLen/2:])
+			factor := int(math.Pow10(numberLen / 2))
+			a := stone / factor
+			b := stone - a*factor
 
 			sum = countStones(a, iteration-1, cache) + countStones(b, iteration-1, cache)
 		}
