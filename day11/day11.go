@@ -9,6 +9,14 @@ func Part1(lines []string) int {
 	return getStoneCount(lines, 25)
 }
 
+func Part1b(lines []string) int {
+	return getStoneCountRecursive(lines, 25)
+}
+
+func Part2(lines []string) int {
+	return getStoneCountRecursive(lines, 75)
+}
+
 func getStoneCount(lines []string, iterations int) int {
 	stoneStrings := strings.Split(lines[0], " ")
 	stones := make([]int, len(stoneStrings))
@@ -68,4 +76,54 @@ func getStoneCount(lines []string, iterations int) int {
 	}
 
 	return len(stones)
+}
+
+type Tuple struct {
+	a, b int
+}
+
+func getStoneCountRecursive(lines []string, iterations int) int {
+	stoneStrings := strings.Split(lines[0], " ")
+
+	cache := make(map[Tuple]int)
+
+	sum := 0
+	for _, str := range stoneStrings {
+		stone, _ := strconv.Atoi(str)
+		sum += countStones(stone, iterations, cache)
+	}
+
+	return sum
+}
+
+func countStones(stone int, iteration int, cache map[Tuple]int) int {
+	key := Tuple{stone, iteration}
+	cached, ok := cache[key]
+	if ok {
+		return cached
+	}
+
+	if iteration == 0 {
+		return 1
+	}
+
+	var sum int
+	if stone == 0 {
+		sum = countStones(1, iteration-1, cache)
+	} else {
+		str := strconv.Itoa(stone)
+		numberLen := len(str)
+		if numberLen%2 == 1 {
+			sum = countStones(stone*2024, iteration-1, cache)
+		} else {
+			a, _ := strconv.Atoi(str[:numberLen/2])
+			b, _ := strconv.Atoi(str[numberLen/2:])
+
+			sum = countStones(a, iteration-1, cache) + countStones(b, iteration-1, cache)
+		}
+	}
+
+	cache[key] = sum
+
+	return sum
 }
