@@ -11,6 +11,7 @@ import (
 	"github.com/philipszalla/adventofcode-2024/day08"
 	"github.com/philipszalla/adventofcode-2024/day09"
 	"github.com/philipszalla/adventofcode-2024/day10"
+	"github.com/philipszalla/adventofcode-2024/day11"
 	"github.com/philipszalla/adventofcode-2024/utils"
 )
 
@@ -45,4 +46,6 @@ func main() {
 
 	utils.RunPartWithFile(10, 1, day10.Part1, "day10/puzzle.txt")
 	utils.RunPartWithFile(10, 2, day10.Part2, "day10/puzzle.txt")
+
+	utils.RunPartWithFile(11, 1, day11.Part1, "day11/puzzle.txt")
 }
