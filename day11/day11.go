@@ -22,13 +22,8 @@ func getStoneCount(lines []string, iterations int) int {
 		stones[i], _ = strconv.Atoi(str)
 	}
 
-	start := time.Now()
-
 	for iteration := 0; iteration < iterations; iteration++ {
-		end := time.Now()
-		elapsed := end.Sub(start)
-		fmt.Printf("Iteration: %2d, stone count: %12d, elapsed time: %s\n", iteration, len(stones), elapsed)
-		start = time.Now()
+		start := time.Now()
 
 		for i := 0; i < len(stones); i++ {
 			stone := stones[i]
@@ -51,9 +46,17 @@ func getStoneCount(lines []string, iterations int) int {
 
 			stones[i] *= 2024
 		}
+
+		end := time.Now()
+		elapsed := end.Sub(start)
+		fmt.Printf("Iteration: %2d, stone count: %12d, elapsed time: %s\n", iteration, len(stones), elapsed)
 	}
 
 	return len(stones)
+}
+
+type Tuple struct {
+	a, b int
 }
 
 func getStoneCountParallel(lines []string, iterations int) int {
@@ -63,20 +66,15 @@ func getStoneCountParallel(lines []string, iterations int) int {
 		stones[i], _ = strconv.Atoi(str)
 	}
 
-	start := time.Now()
-
 	for iteration := 0; iteration < iterations; iteration++ {
-		end := time.Now()
-		elapsed := end.Sub(start)
-		fmt.Printf("Iteration: %2d, stone count: %12d, elapsed time: %s\n", iteration, len(stones), elapsed)
-		start = time.Now()
+		start := time.Now()
 
-		ch := make(chan []int)
+		ch := make(chan Tuple)
 
 		for _, stone := range stones {
 			go func(stone int) {
 				if stone == 0 {
-					ch <- []int{1}
+					ch <- Tuple{1, -1}
 					return
 				}
 
@@ -86,19 +84,30 @@ func getStoneCountParallel(lines []string, iterations int) int {
 					a, _ := strconv.Atoi(str[:numberLen/2])
 					b, _ := strconv.Atoi(str[numberLen/2:])
 
-					ch <- []int{a, b}
+					ch <- Tuple{a, b}
 					return
 				}
 
-				ch <- []int{stone * 2024}
+				ch <- Tuple{stone * 2024, -1}
 			}(stone)
 		}
 
-		newStones := make([]int, 0)
+		newStones := make([]int, len(stones)*2)
+		i := 0
 		for range stones {
-			newStones = append(newStones, <-ch...)
+			tuple := <-ch
+			newStones[i] = tuple.a
+			i++
+			if tuple.b != -1 {
+				newStones[i] = tuple.b
+				i++
+			}
 		}
-		stones = newStones
+		stones = newStones[:i]
+
+		end := time.Now()
+		elapsed := end.Sub(start)
+		fmt.Printf("Iteration: %2d, stone count: %12d, elapsed time: %s\n", iteration, len(stones), elapsed)
 	}
 
 	return len(stones)
