@@ -2,7 +2,6 @@ package day11
 
 import (
 	"fmt"
-	"math"
 	"strconv"
 	"strings"
 )
@@ -12,11 +11,11 @@ func Part1(lines []string) int {
 }
 
 func Part1b(lines []string) int {
-	return getStoneCountRecursive(lines, 25)
+	return getStoneCountRecursive(lines, 25, 12)
 }
 
 func Part2(lines []string) int {
-	return getStoneCountRecursive(lines, 75)
+	return getStoneCountRecursive(lines, 75, 17)
 }
 
 func getStoneCount(lines []string, iterations int) int {
@@ -82,20 +81,22 @@ func getStoneCount(lines []string, iterations int) int {
 
 var ITERATION_BITS = 7
 
-func getStoneCountRecursive(lines []string, iterations int) int {
+func getStoneCountRecursive(lines []string, iterations int, cacheSize int) int {
 	if iterations > 1<<(ITERATION_BITS)-1 {
 		panic(fmt.Sprintf("only supports up to %d iterations", 1<<(ITERATION_BITS+1)-1))
 	}
 
 	stoneStrings := strings.Split(lines[0], " ")
 
-	cache := make(map[int]int)
+	cache := make(map[int]int, 1<<cacheSize)
 
 	sum := 0
 	for _, str := range stoneStrings {
 		stone, _ := strconv.Atoi(str)
 		sum += countStones(stone, iterations, cache)
 	}
+
+	// fmt.Printf("cache size: %d\n", len(cache))
 
 	return sum
 }
@@ -125,7 +126,12 @@ func countStones(stone int, iteration int, cache map[int]int) int {
 		if numberLen%2 == 1 {
 			sum = countStones(stone*2024, iteration-1, cache)
 		} else {
-			factor := int(math.Pow10(numberLen / 2))
+			factor := 1
+			halfLen := numberLen / 2
+			for i := 0; i < halfLen; i++ {
+				factor *= 10
+			}
+
 			a := stone / factor
 			b := stone - a*factor
 
