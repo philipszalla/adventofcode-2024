@@ -6,6 +6,14 @@ import (
 )
 
 func Part1(lines []string) int {
+	return parts(lines, false)
+}
+
+func Part2(lines []string) int {
+	return parts(lines, true)
+}
+
+func parts(lines []string, isPart2 bool) int {
 	sum := 0
 
 	for i := 0; i < len(lines); i += 4 {
@@ -24,17 +32,16 @@ func Part1(lines []string) int {
 		xE, _ := strconv.Atoi(prizes[0][2:])
 		yE, _ := strconv.Atoi(prizes[1][2:])
 
+		if isPart2 {
+			xE += 10000000000000
+			yE += 10000000000000
+		}
+
 		a, b := solveLE(Equation{x1, x2, xE}, Equation{y1, y2, yE})
 		if a != -1 && b != -1 {
 			sum += a*3 + b
 		}
 	}
-
-	// solveLE(Equation{94, 22, 8400}, Equation{34, 67, 5400})
-	// solveLE(Equation{34, 67, 5400}, Equation{94, 22, 8400})
-
-	// solveLE(Equation{26, 67, 12748}, Equation{66, 21, 12176})
-	// solveLE(Equation{66, 21, 12176}, Equation{26, 67, 12748})
 
 	return sum
 }
