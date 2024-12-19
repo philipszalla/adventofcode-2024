@@ -37,7 +37,7 @@ func Part1(lines []string) int {
 			combo = literal
 		}
 
-		fmt.Printf("pointer: %d instruction: %d literal: %d combo: %d A: %d B: %d C: %d\n", i, instruction, literal, combo, regA, regB, regC)
+		// fmt.Printf("pointer: %d instruction: %d literal: %d combo: %d A: %d B: %d C: %d\n", i, instruction, literal, combo, regA, regB, regC)
 
 		switch instruction {
 		case 0:
@@ -81,7 +81,10 @@ func Part1(lines []string) int {
 		}
 	}
 
-	sum, _ := strconv.Atoi(string(output))
+	outputString := string(output)
+	fmt.Printf("%s\n", strings.Join(strings.Split(outputString, ""), ","))
+
+	sum, _ := strconv.Atoi(outputString)
 
 	return sum
 }
