@@ -52,6 +52,7 @@ jobs:
           PUZZLE_13: ${{ secrets.PUZZLE_13 }}
           PUZZLE_15: ${{ secrets.PUZZLE_15 }}
           PUZZLE_16: ${{ secrets.PUZZLE_16 }}
+          PUZZLE_17: ${{ secrets.PUZZLE_17 }}
         run: |
           chmod +x adventofcode-2024
           ./adventofcode-2024 | tee output.txt
